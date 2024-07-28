@@ -1,9 +1,9 @@
-﻿@page "/weather"
+﻿@page "/weather-args"
 @attribute [StreamRendering(true)]
-@attribute [OutputCache(Duration = 5)]
+@rendermode InteractiveServer
 @inject WeatherForecastApi WeatherApi
 
-<PageTitle>Weather - Standard Get</PageTitle>
+<PageTitle>Weather - Long Loading</PageTitle>
 
 <h1>Weather</h1>
 
@@ -11,9 +11,13 @@
     <code>@("<BlazorQuery />")</code> component.
 </p>
 
-<a href="/weather">Refresh</a>
+<div>
+    <button @onclick="() => SetPageSize(1)">Page Size 1</button>
+    <button @onclick="() => SetPageSize(10)">Page Size 10</button>
+    <button @onclick="() => SetPageSize(20)">Page Size 20</button>
+</div>
 
-<BlazorQuery DataQuery="WeatherApi.GetWeather" Args="3">
+<BlazorQuery DataQuery="WeatherApi.GetWeather" Args="@maxItems">
     <LoadingTemplate>
         <p><em>Loading...</em></p>
     </LoadingTemplate>
@@ -46,3 +50,12 @@
         </table>
     </ChildContent>
 </BlazorQuery>
+
+@code {
+    private int maxItems = 10;
+
+    private void SetPageSize(int pageSize)
+    {
+        maxItems = pageSize;
+    }
+}

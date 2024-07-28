@@ -10,7 +10,7 @@ public partial class BlazorQuery<TArg, TResult>
     public required BlazorDataQuery<TArg, TResult> DataQuery { get; set; }
 
     [Parameter]
-    public TArg? Arg { get; set; }
+    public TArg? Args { get; set; }
 
     [Parameter]
     public BlazorDataQueryOptions Options { get; set; } = new();
@@ -28,7 +28,7 @@ public partial class BlazorQuery<TArg, TResult>
 
     protected override async Task OnInitializedAsync()
     {
-        Data = DataQuery.Query(Arg);
+        Data = DataQuery.Query(Args);
         DataQuery.StateChanged += StateHasChanged;
 
         if (Options.Trigger == DataQueryTrigger.OnInitialized)
@@ -43,6 +43,13 @@ public partial class BlazorQuery<TArg, TResult>
         {
             await Data.LoadData();
         }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+
+        await Data.SetArgs(Args);
     }
 }
 
@@ -67,18 +74,19 @@ public class BlazorDataQuery<TArgs, TResult>(Func<TArgs?, Task<TResult>> queryFu
     private readonly Func<TArgs?, Task<TResult>> _queryFunc = queryFunc;
     public event Action StateChanged = () => { };
 
-    public BlazorData<TArgs, TResult> Query(TArgs? arg)
+    public BlazorData<TArgs, TResult> Query(TArgs? args)
     {
-        return new BlazorData<TArgs, TResult>(_queryFunc, arg);
+        return new BlazorData<TArgs, TResult>(_queryFunc) { Args = args, };
     }
 }
 
-public record BlazorData<TArgs, TResult>(Func<TArgs?, Task<TResult>> QueryFunc, TArgs? Args)
+public record BlazorData<TArgs, TResult>(Func<TArgs?, Task<TResult>> QueryFunc)
     where TResult : new()
 {
     public static readonly BlazorData<TArgs, TResult> Empty =
-        new(static _ => Task.FromResult(new TResult()), default);
+        new(static _ => Task.FromResult(new TResult()));
 
+    public TArgs? Args { get; set; }
     public TResult Data { get; set; } = new();
 
     public bool IsError { get; set; }
@@ -93,6 +101,12 @@ public record BlazorData<TArgs, TResult>(Func<TArgs?, Task<TResult>> QueryFunc, 
 
     public async Task LoadData()
     {
+        IsLoading = true;
+        IsError = false;
+
+        Exception = null;
+        ErrorMessage = string.Empty;
+
         try
         {
             Data = await QueryFunc(Args);
@@ -105,5 +119,11 @@ public record BlazorData<TArgs, TResult>(Func<TArgs?, Task<TResult>> QueryFunc, 
         }
 
         IsLoading = false;
+    }
+
+    public async Task SetArgs(TArgs? args)
+    {
+        Args = args;
+        await LoadData();
     }
 }

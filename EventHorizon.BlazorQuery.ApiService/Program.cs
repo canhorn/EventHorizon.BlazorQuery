@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Mvc;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire components.
@@ -27,10 +29,10 @@ var summaries = new[]
 
 app.MapGet(
     "/weatherforecast",
-    () =>
+    ([FromQuery] int? maxItems) =>
     {
         var forecast = Enumerable
-            .Range(1, 5)
+            .Range(1, maxItems ?? 5)
             .Select(index => new WeatherForecast(
                 DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
                 Random.Shared.Next(-20, 55),

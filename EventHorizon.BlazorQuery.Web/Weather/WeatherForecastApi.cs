@@ -4,8 +4,8 @@ using EventHorizon.BlazorQuery.Web.Components;
 
 public class WeatherForecastApi(WeatherApiClient weatherApi)
 {
-    public readonly BlazorDataQuery<string, List<WeatherForecast>> GetWeather =
-        new(async (_) => await weatherApi.GetWeatherAsync());
+    public readonly BlazorDataQuery<int, List<WeatherForecast>> GetWeather =
+        new(async (maxItems) => await weatherApi.GetWeatherAsync(maxItems));
 
     public readonly BlazorDataQuery<string, List<WeatherForecast>> GetWeatherLongLoading =
         new(

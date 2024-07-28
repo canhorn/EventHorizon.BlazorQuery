@@ -11,7 +11,7 @@ public class WeatherApiClient(HttpClient httpClient)
 
         await foreach (
             var forecast in httpClient.GetFromJsonAsAsyncEnumerable<WeatherForecast>(
-                "/weatherforecast",
+                $"/weatherforecast?maxItems={maxItems}",
                 cancellationToken
             )
         )
