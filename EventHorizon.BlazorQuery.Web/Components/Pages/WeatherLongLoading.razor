@@ -1,0 +1,48 @@
+﻿@page "/weather-long-loading"
+@attribute [StreamRendering(true)]
+@attribute [OutputCache(Duration = 5)]
+@inject WeatherForecastApi WeatherApi
+
+<PageTitle>Weather - Long Loading</PageTitle>
+
+<h1>Weather</h1>
+
+<p>This component demonstrates showing data loaded from a backend API service, using the
+    <code>@("<BlazorQuery />")</code> component.
+</p>
+
+<a href="/weather-long-loading">Refresh</a>
+
+<BlazorQuery DataQuery="WeatherApi.GetWeatherLongLoading">
+    <LoadingTemplate>
+        <p><em>Loading...</em></p>
+    </LoadingTemplate>
+    <ErrorTemplate>
+        <p><em>An error occurred loading the data.</em></p>
+        <p>@context.ErrorMessage</p>
+    </ErrorTemplate>
+    <ChildContent>
+        <h2>Weather forecast</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Temp. (C)</th>
+                    <th>Temp. (F)</th>
+                    <th>Summary</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var forecast in context.Data)
+                {
+                    <tr>
+                        <td>@forecast.Date.ToShortDateString()</td>
+                        <td>@forecast.TemperatureC</td>
+                        <td>@forecast.TemperatureF</td>
+                        <td>@forecast.Summary</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </ChildContent>
+</BlazorQuery>

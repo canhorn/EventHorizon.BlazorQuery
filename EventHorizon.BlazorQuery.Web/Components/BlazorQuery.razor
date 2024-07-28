@@ -1,0 +1,15 @@
+@typeparam TArg
+@typeparam TResult
+
+@if (Data.IsError)
+{
+    @ErrorTemplate?.Invoke(Data)
+}
+else if (Data.IsLoading)
+{
+    @LoadingTemplate?.Invoke(Data)
+}
+else if (Data.HasData)
+{
+    @ChildContent(Data)
+}
